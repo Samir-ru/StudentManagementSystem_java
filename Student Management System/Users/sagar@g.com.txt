@@ -1,0 +1,6 @@
+Email: sagar@g.com
+Name: Sagar Budathoki
+Password: sagar123
+Phone: 1234890567
+Gender: Male
+userType: Student
