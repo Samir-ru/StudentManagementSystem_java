@@ -1,6 +1,0 @@
-Email: samir@g.com
-Name: Samir Guragain
-Password: samir123
-Phone: 9860184030
-Gender: Male
-userType: Student
