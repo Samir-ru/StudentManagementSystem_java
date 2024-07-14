@@ -2,19 +2,11 @@ package com.example.studentmanagementsystem;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 import static com.example.studentmanagementsystem.Uses.changeScene;
 import java.io.*;
-import java.net.URL;
-import java.util.ResourceBundle;
 
-public class LoginController{
+public class LoginController {
     @FXML
     private TextField Email, Password;
 
@@ -22,21 +14,30 @@ public class LoginController{
     protected void onLogin(ActionEvent actionEvent) throws IOException {
         String inputEmail = Email.getText();
         String inputPassword = Password.getText();
-        boolean loginSuccessful = false;
+        String role = "";
 
         try (BufferedReader csvReader = new BufferedReader(new FileReader("Users.csv"))) {
             String row;
             while ((row = csvReader.readLine()) != null) {
                 String[] data = row.split(",");
-                if (data[0].equals(inputEmail) && data[1].equals(inputPassword)) {
-                    loginSuccessful = true;
+                if (data.length >= 5 && data[1].equals(inputEmail) && data[2].equals(inputPassword)) {
+                    role = data[5].trim();
                     break;
                 }
             }
         }
 
-        if (loginSuccessful) {
-            changeScene(actionEvent, "StudentDashboard.fxml", "Log in");
+        if (!role.isEmpty()) {
+            switch (role) {
+                case "Student":
+                    changeScene(actionEvent, "StudentDashboard.fxml", "Student's Dashboard");
+                    break;
+                case "Teacher":
+                    changeScene(actionEvent, "TeacherDashboard.fxml", "Teacher's Dashboard");
+                    break;
+                default:
+                    System.out.println("Unknown role: " + role);
+            }
         } else {
             System.out.println("Login failed. Incorrect email or password.");
         }
@@ -47,3 +48,4 @@ public class LoginController{
         changeScene(actionEvent, "Initials.fxml", "Log in");
     }
 }
+

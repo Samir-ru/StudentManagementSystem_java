@@ -2,7 +2,6 @@ package com.example.studentmanagementsystem;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-
 import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
@@ -16,8 +15,9 @@ public class SignupController implements Initializable {
     @FXML
     private TextField Email, Password, FirstName, LastName, Phone;
     @FXML
-    private ChoiceBox<String>  Gender;
+    private ChoiceBox<String> Gender;
     private String[] Genders = {"Male", "Female", "Others"};
+
     @FXML
     protected void onSignup(ActionEvent actionEvent) throws IOException {
         String inputEmail = Email.getText();
@@ -26,7 +26,11 @@ public class SignupController implements Initializable {
         String inputPhone = Phone.getText();
         String inputGender = Gender.getValue();
 
+        String userId = generateUserId();
+
         try (BufferedWriter txtWriter = new BufferedWriter(new FileWriter("Users/" + inputEmail + ".txt"))) {
+            txtWriter.write("UserID: " + userId);
+            txtWriter.newLine();
             txtWriter.write("Email: " + inputEmail);
             txtWriter.newLine();
             txtWriter.write("Name: " + inputName);
@@ -41,7 +45,7 @@ public class SignupController implements Initializable {
         }
 
         try (BufferedWriter csvWriter = new BufferedWriter(new FileWriter("Users.csv", true))) {
-            csvWriter.write(inputEmail + "," + inputPassword + "," + inputName + "," + inputGender + ",Student");
+            csvWriter.write(userId + "," + inputEmail + "," + inputPassword + "," + inputName + "," + inputGender + ",Student");
             csvWriter.newLine();
         }
         try {
@@ -60,5 +64,29 @@ public class SignupController implements Initializable {
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
         Gender.getItems().addAll(Genders);
+    }
+
+    private String generateUserId() {
+        int highestId = 0;
+        try (BufferedReader csvReader = new BufferedReader(new FileReader("Users.csv"))) {
+            String row;
+            while ((row = csvReader.readLine()) != null) {
+                String[] data = row.split(",");
+                if (data.length > 0 && data[0].startsWith("K") && data[0].length() == 4) {
+                    try {
+                        int idNum = Integer.parseInt(data[0].substring(1));
+                        if (idNum > highestId) {
+                            highestId = idNum;
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid user ID format: " + data[0]);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading Users.csv: " + e.getMessage());
+        }
+
+        return String.format("K%03d", highestId + 1);
     }
 }
